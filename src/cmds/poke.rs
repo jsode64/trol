@@ -9,7 +9,7 @@ const NUM_POKEMON: usize = 1025;
 /// The URL to the `pokemon.com` image sources without the index number and `.png` tag.
 const IMG_URL: &str = "https://www.pokemon.com/static-assets/content-assets/cms2/img/pokedex/full/";
 
-/// "poke" command response function.
+/// `/poke` command response function.
 fn run() -> CreateInteractionResponseFollowup {
     CreateInteractionResponseFollowup::new().embed(CreateEmbed::new().image(format!(
         "{IMG_URL}{:03}.png",

@@ -25,15 +25,15 @@ impl BotCommand {
 
     /// Runs the command on the given context.
     pub async fn run(&self, ctx: &Context, interaction: &CommandInteraction) {
-        if let Err(e) = interaction.defer(&ctx.http).await {
-            println!("{e}");
-        }
+        let _ = interaction
+            .defer(&ctx.http)
+            .await
+            .map_err(|e| println!("{e}"));
 
-        let response = (self.respond)();
-
-        if let Err(e) = interaction.create_followup(&ctx.http, response).await {
-            println!("{e}");
-        }
+        let _ = interaction
+            .create_followup(&ctx.http, (self.respond)())
+            .await
+            .map_err(|e| println!("{e}"));
     }
 }
 

@@ -5,17 +5,18 @@ use rand::{rng, seq::IndexedRandom};
 use serenity::all::CreateInteractionResponseFollowup;
 
 /// Potential responses.
-const RESPONSES: Lazy<[String; 5]> = Lazy::new(|| {
+const RESPONSES: Lazy<[String; 6]> = Lazy::new(|| {
     [
+        "Maybe someday.".to_string(),
+        "I don't think so.".to_string(),
         "No.".to_string(),
         "Yes.".to_string(),
         "Try asking again.".to_string(),
-        "Maybe.".to_string(),
-        "I don't think so.".to_string(),
+        "*No!*".to_string(),
     ]
 });
 
-/// "conch" command response function.
+/// `/conch` command response function.
 fn run() -> CreateInteractionResponseFollowup {
     CreateInteractionResponseFollowup::new().content(RESPONSES.choose(&mut rng()).unwrap())
 }

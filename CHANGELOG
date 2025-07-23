@@ -1,0 +1,15 @@
+# Initial commit, 7/22/2025:
+
+- Sends the ["pokemon.com"](https://www.pokemon.com/us/pokedex) image for a random Pokémon when prompted with `/poke`
+- Responds with one of the Magic Conch quotes from Spongebob when prompted with `/conch`
+- Whenever username "tuftydragon943" sends a message, immediately reacts with `👎`
+
+# Commit 2, 7/33/2025:
+
+- Mentioning the bot will now have it decypher the message, using the first letter of each word as a hint to a 6-digit alphabetic code which it will print
+- Mentioning the bot with an invalid code will have it react with `🥀`
+- Added *`"No!"`* to `/conch` as a possible response and replaced `"Maybe"` with the lore-accurate `"Maybe, someday."`
+- Ordered `/conch` responses based on the order they appear first in the episode
+- Removed the bot-check guard from the bot's message response as it only ever replies to one human
+- Replaced `if let Err(_) = ...` errors with `let _ = ...` with `map_err` to print the error instead for cleanliness
+- Replaced `main` errors with `?` handling

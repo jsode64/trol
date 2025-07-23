@@ -23,12 +23,12 @@ impl EventHandler for Bot {
         }
 
         // Set commands.
-        Command::set_global_commands(
+        let _ = Command::set_global_commands(
             &ctx.http,
             COMMANDS.iter().map(BotCommand::create_command).collect(),
         )
         .await
-        .unwrap();
+        .map_err(|e| println!("{e}"));
     }
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
@@ -48,6 +48,28 @@ impl EventHandler for Bot {
         if msg.author.name == "tuftydragon943" {
             let _ = msg.react(&ctx.http, '👎').await;
         }
+
+        // Decypher the message, using its words' first letters as hints to a BTD6 co-op code.
+        if msg.mentions_user_id(ctx.cache.current_user().id) {
+            // Get a string via the first word hints.
+            let letters = msg
+                .content
+                .split_ascii_whitespace()
+                .skip(1)
+                .map(|x| x.chars().nth(0).unwrap().to_ascii_uppercase())
+                .collect::<String>();
+
+            // Verify the string.
+            if letters.len() == 6 && letters.chars().all(|c| c.is_ascii_alphabetic()) {
+                let _ = msg
+                    .channel_id
+                    .say(&ctx.http, format!("THE CODE IS **{letters}** !!!"))
+                    .await
+                    .map_err(|e| println!("{e}"));
+            } else {
+                let _ = msg.react(&ctx.http, '🥀').await;
+            }
+        }
     }
 }
 
@@ -60,11 +82,9 @@ async fn main() -> Result<(), String> {
     let mut client = ClientBuilder::new(&token, intents)
         .event_handler(Bot)
         .await
-        .expect("Ok");
+        .map_err(|e| e.to_string())?;
 
-    if let Err(e) = client.start().await {
-        println!("{e}");
-    }
+    client.start().await.map_err(|e| e.to_string())?;
 
     Ok(())
 }
