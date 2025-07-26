@@ -1,4 +1,7 @@
-use crate::cmds::{conch::CONCH_CMD, poke::POKE_CMD};
+use crate::{
+    cmds::{conch::CONCH_CMD, poke::POKE_CMD},
+    log_cmd, log_err,
+};
 
 use serenity::all::{
     CommandInteraction, Context, CreateCommand, CreateInteractionResponseFollowup,
@@ -25,15 +28,17 @@ impl BotCommand {
 
     /// Runs the command on the given context.
     pub async fn run(&self, ctx: &Context, interaction: &CommandInteraction) {
-        let _ = interaction
-            .defer(&ctx.http)
-            .await
-            .map_err(|e| println!("{e}"));
-
-        let _ = interaction
-            .create_followup(&ctx.http, (self.respond)())
-            .await
-            .map_err(|e| println!("{e}"));
+        log_err!(interaction.defer(&ctx.http).await);
+        log_err!(
+            interaction
+                .create_followup(&ctx.http, (self.respond)())
+                .await
+        );
+        log_cmd!(
+            "`{}` used `{}`",
+            interaction.user.name,
+            interaction.data.name
+        );
     }
 }
 

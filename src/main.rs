@@ -1,5 +1,6 @@
 use crate::cmds::bot_command::{BotCommand, COMMANDS};
 
+use rand::{rng, seq::IndexedRandom};
 use serenity::{
     all::{
         ClientBuilder, Command, Context, EventHandler, GatewayIntents, Interaction, Message, Ready,
@@ -8,6 +9,7 @@ use serenity::{
 };
 
 mod cmds;
+mod util;
 
 struct Bot;
 
@@ -15,20 +17,16 @@ struct Bot;
 impl EventHandler for Bot {
     async fn ready(&self, ctx: Context, ready: Ready) {
         // Successful launch message.
-        println!("{} is up", ready.user.name);
-
-        // Print connected guilds (servers).
-        for guild in ready.guilds {
-            println!("Connected to {}", guild.id);
-        }
+        log_cmd!("{} went online", ready.user.name);
 
         // Set commands.
-        let _ = Command::set_global_commands(
-            &ctx.http,
-            COMMANDS.iter().map(BotCommand::create_command).collect(),
-        )
-        .await
-        .map_err(|e| println!("{e}"));
+        log_err!(
+            Command::set_global_commands(
+                &ctx.http,
+                COMMANDS.iter().map(BotCommand::create_command).collect(),
+            )
+            .await
+        );
     }
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
@@ -44,9 +42,18 @@ impl EventHandler for Bot {
     }
 
     async fn message(&self, ctx: Context, msg: Message) {
-        // Give a thumbs down whenever `tuftydragon943` sends a message.
+        // Give a negative reaction whenever `tuftydragon943` sends a message.
         if msg.author.name == "tuftydragon943" {
-            let _ = msg.react(&ctx.http, '👎').await;
+            let &c = ['👎', '🙁', '❌', '💔'].choose(&mut rng()).unwrap();
+
+            log_err!(msg.react(&ctx.http, c).await);
+            log_cmd!("Reacted '{}' to Palma: \"{}\"", c, msg.content);
+        }
+
+        // Politely tell the author not to ping everyone.
+        if msg.mention_everyone {
+            log_err!(msg.reply_mention(&ctx.http, "***KILL YOURSELF!***").await);
+            log_cmd!("Told `{}` not to ping everyone", msg.author.name);
         }
 
         // Decypher the message, using its words' first letters as hints to a BTD6 co-op code.
@@ -61,13 +68,24 @@ impl EventHandler for Bot {
 
             // Verify the string.
             if letters.len() == 6 && letters.chars().all(|c| c.is_ascii_alphabetic()) {
-                let _ = msg
-                    .channel_id
-                    .say(&ctx.http, format!("THE CODE IS **{letters}** !!!"))
-                    .await
-                    .map_err(|e| println!("{e}"));
+                log_err!(
+                    msg.channel_id
+                        .say(&ctx.http, format!("THE CODE IS **{letters}** !!!"))
+                        .await
+                );
+                log_cmd!(
+                    "Got code \"{}\" from `{}`'s message: \"{}\"",
+                    letters,
+                    msg.author.name,
+                    &msg.content[22..].trim_start()
+                );
             } else {
-                let _ = msg.react(&ctx.http, '🥀').await;
+                log_err!(msg.react(&ctx.http, '🥀').await);
+                log_cmd!(
+                    "Failed to get a code from `{}`'s message: \"{}\"",
+                    msg.author.name,
+                    &msg.content[22..].trim_start()
+                )
             }
         }
     }

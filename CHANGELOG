@@ -4,7 +4,7 @@
 - Responds with one of the Magic Conch quotes from Spongebob when prompted with `/conch`
 - Whenever username "tuftydragon943" sends a message, immediately reacts with `👎`
 
-# Commit 2, 7/33/2025:
+# Commit 2, 7/23/2025:
 
 - Mentioning the bot will now have it decypher the message, using the first letter of each word as a hint to a 6-digit alphabetic code which it will print
 - Mentioning the bot with an invalid code will have it react with `🥀`
@@ -13,3 +13,13 @@
 - Removed the bot-check guard from the bot's message response as it only ever replies to one human
 - Replaced `if let Err(_) = ...` errors with `let _ = ...` with `map_err` to print the error instead for cleanliness
 - Replaced `main` errors with `?` handling
+
+# Commit 3, 7/26/2025:
+
+- Added error logging for `Bot::message`
+- Added more reactions for "tuftydragon943"
+- Now tells people off for pinging everyone
+- `/conch` responses are now stored in `&str`s not lazy `String`s
+- Added `util.rs` with the `log_err` and `log_cmd` macros
+- Simplified error logging with `log_err` which wraps `if let Err(e) = ...` cleanly
+- Now logs every action performed or attemped with `log_cmd` which prints to the console with time, action, and cause
